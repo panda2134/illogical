@@ -33,6 +33,8 @@ skolemize <FORM>
   -> displays FORM in the skolemized form
 cnf <FORM>
   -> displays FORM in the conjuntive normal form
+dnf <FORM>
+  -> displays FORM in the disjunctive normal form
 pnf <FORM>
   -> displays FORM in the prenex normal form
 mgu <PRED> ; <PRED>
@@ -87,7 +89,8 @@ ILLOGICAL v$version - interactive mode
               print("2 simplified: "); printForm(f.simplifying)
               print("3 prenex:     "); printForm(f.pnf)
               print("4 conjuntive: "); printForm(f.simplifying.cnf)
-              print("5 skolemized: "); printForm(Skolemizer.skolemized(f))
+              print("5 disjuntive: "); printForm(f.simplifying.dnf)
+              print("6 skolemized: "); printForm(Skolemizer.skolemized(f))
               println()
               println("properties:")
               println(s"- unsat:   ${Resolver.isUnsat(f)}")
@@ -103,6 +106,9 @@ ILLOGICAL v$version - interactive mode
         case ("cnf", form) => 
           parseForm(form)
             .foreach(f => printForm(f.cnf))
+        case ("dnf", form) => 
+          parseForm(form)
+            .foreach(f => printForm(f.dnf))
         case ("pnf", form) => 
           parseForm(form)
             .foreach(f => printForm(f.pnf))

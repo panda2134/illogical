@@ -12,6 +12,8 @@ project/boot/
 project/plugins/project/
 .history
 .cache
+.metals/
+.bloop/
 .lib/
 project/
 
