@@ -1,5 +1,7 @@
 package com.maxadamski.illogical
 
+import scala.io.StdIn.readLine
+
 object Main {
 
   def printForm(x: Form): Unit = println(formatter.formatted(x))

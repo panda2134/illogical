@@ -12,8 +12,8 @@
       in rec {
         devShell = pkgs.mkShell {
           buildInputs = [
-            (pkgs.scala_2_10.override { jre = pkgs.openjdk8-bootstrap; })
-            (pkgs.sbt.override { jre = pkgs.openjdk8-bootstrap; })
+            pkgs.scala
+            pkgs.sbt
           ];
         };
       }
