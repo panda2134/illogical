@@ -12,10 +12,21 @@
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShell = pkgs.mkShell {
+          shellHook = ''
+            echo "Welcome to dev shell!"
+            echo "run \`codium .\` to start developing"
+          '';
           packages = [
             pkgs.scala
             pkgs.sbt
-            # scala-neovim.packages.${system}.default
+            (pkgs.vscode-with-extensions.override {
+              vscode = pkgs.vscodium;
+              vscodeExtensions = with pkgs.vscode-extensions; [
+                scala-lang.scala
+                scalameta.metals
+                bbenoist.nix
+              ];
+            })
           ];
         };
       }

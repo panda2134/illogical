@@ -22,9 +22,9 @@ Easy-to-use first order logic tools.
 
 ## How to run
 
-```sh
-sbt run
- ```
+First, install scala & sbt. You can use the command `nix develop` if using Nix.
+
+After that, execute `sbt run` in the terminal.
 
 ## How to test
 
