@@ -161,13 +161,13 @@ sealed abstract class Form extends Node with LogicLaws {
   def substituting(g: Set[Sub]): Form = this match {
     case Op(p, t, q) => Op(p.substituting(g), t, q.substituting(g))
     case Qu(t, v, p) => Qu(t, v, p.substituting(g))
-    case Pred(t, a, _) => Pred(t, a.map(_.substituting(g)))
+    case Pred(t, a, ty) => Pred(t, a.map(_.substituting(g)), ty)
     case Not(p) => Not(p.substituting(g))
   }
 
   def renaming(v1: Var, v2: Var): Form = this match {
-    case Pred(t, args, _) =>
-      Pred(t, args.map(_.renaming(v1, v2)))
+    case Pred(t, args, ty) =>
+      Pred(t, args.map(_.renaming(v1, v2)), ty)
     case Op(p, t, q) =>
       Op(p.renaming(v1, v2), t, q.renaming(v1, v2))
     case Qu(t, v, p) =>
