@@ -59,14 +59,16 @@ object Resolver {
       }
 
       val newClauses: Set[Clause] = clauseSet.subsets(2).map({subset => 
-        subset.toList match { case List(a, b) =>
-          val mgu = Unifier.mgu(a.lits, b.lits)
-          if (mgu != None && compliment(a.lits ++ b.lits)) {
-            val x = (a.lits ++ b.lits).map(lit => lit.substituting(mgu.get))
-            Some(Clause(removingCompliment(x), a.comps ++ b.comps ++ List(a.lits, b.lits), a.mgus ++ b.mgus :+ mgu.get))
-          } else {
-            None
-          }
+        subset.toList match { 
+          case List(a, b) =>
+            val mgu = Unifier.mgu(a.lits, b.lits)
+            if (mgu != None && compliment(a.lits ++ b.lits)) {
+              val x = (a.lits ++ b.lits).map(lit => lit.substituting(mgu.get))
+              Some(Clause(removingCompliment(x), a.comps ++ b.comps ++ List(a.lits, b.lits), a.mgus ++ b.mgus :+ mgu.get))
+            } else {
+              None
+            }
+          case _ => throw new RuntimeException("impossible case")
         }
       }).toSet.flatten
 
