@@ -3,8 +3,8 @@ package com.maxadamski.illogical
 object Unifier {
   def mgu(p: Form, q: Form): Option[Set[Sub]] = (p, q) match {
     case (p: Pred, q: Pred) => mgu(p, q)
-    case (Not(Pred(n, a)), q: Pred) => mgu(Pred(n,a), q)
-    case (p: Pred, Not(Pred(n, a))) => mgu(p, Pred(n,a))
+    case (Not(Pred(n, a, _)), q: Pred) => mgu(Pred(n,a), q)
+    case (p: Pred, Not(Pred(n, a, _))) => mgu(p, Pred(n,a))
     case _ => None
   }
 

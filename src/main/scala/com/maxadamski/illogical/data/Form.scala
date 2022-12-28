@@ -1,10 +1,45 @@
 package com.maxadamski.illogical
 
-case class Pred(name: String, arguments: List[Term]) extends Form with WithArgs with Named
+import scala.collection.immutable.HashMap
 
-case class Not(form: Form) extends Form
+case class Pred(name: String, arguments: List[Term], signature: Option[(List[NodeType])] = None) extends Form with WithArgs with Named {
 
-case class Qu(token: QuToken, variable: Var, form: Form) extends Form
+  require(signature == None || signature.get.size == arguments.size)
+
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = signature match {
+    case None => None
+    case Some(argTypes) => {
+      val unmatchFound = (arguments zip argTypes).map({ case (t, ty) =>
+        t.recursiveTyping(context) match {
+          case Some(value) if (value compatibleWith ty) => true
+          case _ => false
+        }
+      }).find(!_)
+      return unmatchFound match {
+        case Some(_) => None
+        case None => Some(ConcreteType("Bool"))
+      }
+    }
+  }
+}
+
+case class Not(form: Form) extends Form {
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = form.recursiveTyping(context) match {
+    case Some(ty) if ty compatibleWith ConcreteType("Bool") => Some(ConcreteType("Bool"))
+    case _ => None
+  }
+}
+
+case class Qu(token: QuToken, variable: Var, form: Form) extends Form {
+
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = {
+    if (variable.typing == UnknownType) {
+      return None
+    } else {
+      return form.recursiveTyping(context + (variable.name -> variable.typing))
+    }
+  }
+}
 
 case class Op(leftForm: Form, token: OpToken, rightForm: Form) extends Form {
 
@@ -23,6 +58,7 @@ case class Op(leftForm: Form, token: OpToken, rightForm: Form) extends Form {
     case _ => false
   }
 
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = Some(ConcreteType("Bool"))
 }
 
 sealed abstract class Form extends Node with LogicLaws {
@@ -125,12 +161,12 @@ sealed abstract class Form extends Node with LogicLaws {
   def substituting(g: Set[Sub]): Form = this match {
     case Op(p, t, q) => Op(p.substituting(g), t, q.substituting(g))
     case Qu(t, v, p) => Qu(t, v, p.substituting(g))
-    case Pred(t, a) => Pred(t, a.map(_.substituting(g)))
+    case Pred(t, a, _) => Pred(t, a.map(_.substituting(g)))
     case Not(p) => Not(p.substituting(g))
   }
 
   def renaming(v1: Var, v2: Var): Form = this match {
-    case Pred(t, args) =>
+    case Pred(t, args, _) =>
       Pred(t, args.map(_.renaming(v1, v2)))
     case Op(p, t, q) =>
       Op(p.renaming(v1, v2), t, q.renaming(v1, v2))
@@ -181,7 +217,7 @@ sealed abstract class Form extends Node with LogicLaws {
     case Not(p) =>
       val (newP, newVars, newQs) = p.partialPNF(vars, qs)
       (Not(newP), newVars, newQs)
-    case Pred(_, _) =>
+    case Pred(_, _, _) =>
       (this, vars, qs)
   }
 
@@ -212,7 +248,7 @@ sealed abstract class Form extends Node with LogicLaws {
       val p2 = p.simplifyingOperators
       Not(p2)
 
-    case Pred(_, _) =>
+    case Pred(_, _, _) =>
       this
   }
 
@@ -227,14 +263,14 @@ sealed abstract class Form extends Node with LogicLaws {
         expand_de_morgan(this).get
       case Op(_, _, _) =>
         simplifyingOperators.simplifyingNegation
-      case Pred(_, _) =>
+      case Pred(_, _, _) =>
         this
     }
     case Op(form_a, token, form_b) =>
       Op(form_a.simplifyingNegation, token, form_b.simplifyingNegation)
     case Qu(token, variable, form) =>
       Qu(token, variable, form.simplifyingNegation)
-    case Pred(_, _) =>
+    case Pred(_, _, _) =>
       this
   }
 

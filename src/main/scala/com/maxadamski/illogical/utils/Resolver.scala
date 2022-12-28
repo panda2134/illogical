@@ -91,10 +91,10 @@ object Resolver {
 
   private def compliment(lits: Set[Form]): Boolean = {
     lits.exists { 
-      case Pred(n, _) => 
-        lits exists { case Not(Pred(m, _)) => n == m; case _ => false }
-      case Not(Pred(n, _)) => 
-        lits exists { case Pred(m, _) => n == m; case _ => false }
+      case Pred(n, _, _) => 
+        lits exists { case Not(Pred(m, _, _)) => n == m; case _ => false }
+      case Not(Pred(n, _, _)) => 
+        lits exists { case Pred(m, _, _) => n == m; case _ => false }
       case _ => false
     }
   }
@@ -106,11 +106,11 @@ object Resolver {
   private def removingCompliment(lits: Set[Form]): Set[Form] = {
     var remove = Set[Form]()
     lits.foreach {
-      case lit @ Pred(n, p) => 
-        val x = lits exists { case Not(Pred(m, _)) => n == m; case _ => false }
+      case lit @ Pred(n, p, _) => 
+        val x = lits exists { case Not(Pred(m, _, _)) => n == m; case _ => false }
         if (x) remove ++= Set(lit, Not(lit))
-      case lit @ Not(Pred(n, p)) => 
-        val x = lits exists { case Pred(m, _) => n == m; case _ => false }
+      case lit @ Not(Pred(n, p, _)) => 
+        val x = lits exists { case Pred(m, _, _) => n == m; case _ => false }
         if (x) remove ++= Set(lit, Pred(n, p))
       case _ => false
     }

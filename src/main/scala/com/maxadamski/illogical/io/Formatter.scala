@@ -52,3 +52,36 @@ object LatexFormatter extends Formatter {
     case x => super.fmt(x)
   }
 }
+
+object SexprFormatter extends Formatter {
+  override def formatted(node: Form): String = fmtSexpr(node)
+  def formattedWithType(node: Form): String = fmtSexprWithType(node)
+
+  val fmtSexpr: (Node) => String = fmtSexprImpl(_, fmtSexpr)
+  def fmtSexprWithType(n: Node): String = s"(! ${fmtSexprImpl(n, fmtSexprWithType)} :typed ${n.lastTypingValue.getOrElse("None")})"
+
+  def fmtSexprImpl(n: Node, fix: (Node) => String): String = n match {
+    case x: Func => s"(${x.name} (${x.arguments.map(fix).mkString(" ")}))"
+    case x: Pred => s"(${x.name} (${x.arguments.map(fix).mkString(" ")}))"
+    case x: Not => s"(not ${x.form})"
+    case x: Con => x.name
+    case x: Var => x.name
+    case x: Op => s"(${symbol(x.token)} ${fix(x.leftForm)} ${fix(x.rightForm)})"
+    case x: Qu => s"(${symbol(x.token)} ((${x.variable.name} ${x.variable.typing})) ${fix(x.form)})"
+  }
+
+  override def symbol(x: OpToken) = x match {
+    case OR   => "or"
+    case AND  => "and"
+    case NOR  => "nor"
+    case NAND => "nand"
+    case XOR  => "xor"
+    case IMP  => "=>"
+    case EQV  => "="
+  }
+
+  override def symbol(x: QuToken) = x match {
+    case FORALL => "forall"
+    case EXISTS => "exists"
+  }
+}

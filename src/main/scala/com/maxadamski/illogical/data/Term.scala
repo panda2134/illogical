@@ -1,5 +1,7 @@
 package com.maxadamski.illogical
 
+import scala.collection.immutable.HashMap
+
 trait Named {
   val name: String
 
@@ -12,27 +14,57 @@ trait WithArgs {
   require(!arguments.isEmpty, "Cannot pass empty argument list!")
 }
 
-case class Func(name: String, arguments: List[Term]) extends Term with WithArgs
-case class Var(name: String) extends Term
+case class Func(name: String, arguments: List[Term],
+  signature: Option[(List[NodeType], NodeType)] = None) extends Term with WithArgs {
 
-case class Con(name: String) extends Term
+    require(signature == None || signature.get._1.size == arguments.size)
+
+    override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = signature match {
+      case None => None
+      case Some((argTypes, retType)) => {
+        val unmatchFound = (arguments zip argTypes).map({ case (t, ty) =>
+          t.recursiveTyping(context) match {
+            case Some(value) if (value compatibleWith ty) => true
+            case _ => false
+          }
+        }).find(!_)
+        return unmatchFound match {
+          case Some(_) => None
+          case None => Some(retType)
+        }
+      }
+    }
+}
+
+case class Var(name: String, typing: NodeType = AnyType) extends Term {
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = typing match {
+    case UnknownType => context.get(name)
+    case _ => Some(typing)
+  }
+}
+case class Con(name: String, typing: NodeType = AnyType) extends Term {
+  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = typing match {
+    case UnknownType => context.get(name)
+    case _ => Some(typing)
+  }
+}
 
 sealed abstract class Term extends Node {
 
   def substituting(sub: Set[Sub]): Term = this match {
-    case Func(name, args) => Func(name, args.map(_.substituting(sub)))
+    case Func(name, args, _) => Func(name, args.map(_.substituting(sub)))
     case v: Var => termForVar(v, sub) getOrElse this
     case _ => this
   }
 
   def vars: Set[Var] = this match {
-    case Func(_, args) => args.map(_.vars).toSet.flatten
+    case Func(_, args, _) => args.map(_.vars).toSet.flatten
     case v: Var => Set(v)
     case c: Con => Set()
   }
 
   def cons: Set[Con] = this match {
-    case Func(_, args) => args.map(_.cons).toSet.flatten
+    case Func(_, args, _) => args.map(_.cons).toSet.flatten
     case c: Con => Set(c)
     case v: Var => Set()
   }
