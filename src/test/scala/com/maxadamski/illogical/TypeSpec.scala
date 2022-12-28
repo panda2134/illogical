@@ -12,8 +12,15 @@ class TypeSpec extends UnitSpec {
   describe("Typing") {
     describe("basic") {
       it("should pass typecheck") {
-        val form = Qu(FORALL, Var("x", ConcreteType("Int")),
-          Pred("=", List(Var("x", UnknownType), Con("1", ConcreteType("Int"))), Some(List(ConcreteType("Int"), ConcreteType("Int")))))
+        val form = Qu(
+          FORALL,
+          Var("x", ConcreteType("Int")),
+          Pred(
+            "=",
+            List(Var("x", UnknownType), Con("1", ConcreteType("Int"))),
+            Some(List(ConcreteType("Int"), ConcreteType("Int")))
+          )
+        )
         form.recursiveTyping(HashMap.empty)
         println(SexprFormatter.fmtSexprWithType(form))
       }
