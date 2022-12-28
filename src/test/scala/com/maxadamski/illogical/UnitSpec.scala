@@ -1,8 +1,9 @@
 package com.maxadamski.illogical
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-abstract class UnitSpec extends FunSpec with Matchers {
+abstract class UnitSpec extends AnyFunSpec with Matchers {
   def shouldParse(formula: String, result: Form, comment: String = "") {
     it(s"should parse `$formula`" + comment) {
       Parser.parse(formula) shouldEqual Some(result)
