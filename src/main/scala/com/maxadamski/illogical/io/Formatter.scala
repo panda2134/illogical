@@ -61,8 +61,8 @@ object SexprFormatter extends Formatter {
   def fmtSexprWithType(n: Node): String = s"(! ${fmtSexprImpl(n, fmtSexprWithType)} :typed ${n.lastTypingValue.getOrElse("None")})"
 
   def fmtSexprImpl(n: Node, fix: (Node) => String): String = n match {
-    case x: Func => s"(${x.name} (${x.arguments.map(fix).mkString(" ")}))"
-    case x: Pred => s"(${x.name} (${x.arguments.map(fix).mkString(" ")}))"
+    case x: Func => s"(${x.name} ${x.arguments.map(fix).mkString(" ")})"
+    case x: Pred => s"(${x.name} ${x.arguments.map(fix).mkString(" ")})"
     case x: Not => s"(not ${x.form})"
     case x: Con => x.name
     case x: Var => x.name

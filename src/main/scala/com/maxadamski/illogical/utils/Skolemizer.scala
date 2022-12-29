@@ -22,10 +22,10 @@ object Skolemizer {
       e match {
         case (v, Nil) => 
           k += 1
-          Sub(v, Con("k" + k))
+          Sub(v, Con("k" + k, v.typing))
         case (v, vs) => 
           s += 1
-          Sub(v, Func("s" + s, vs))
+          Sub(v, Func("s" + s, vs, Some((vs.map(x => x.typing), v.typing))))
       }
     }.toSet
   }

@@ -52,7 +52,7 @@ case class Con(name: String, typing: NodeType = AnyType) extends Term {
 sealed abstract class Term extends Node {
 
   def substituting(sub: Set[Sub]): Term = this match {
-    case Func(name, args, _) => Func(name, args.map(_.substituting(sub)))
+    case Func(name, args, ty) => Func(name, args.map(_.substituting(sub)), ty)
     case v: Var => termForVar(v, sub) getOrElse this
     case _ => this
   }
@@ -70,7 +70,7 @@ sealed abstract class Term extends Node {
   }
   
   def termForVar(v: Var, subs: Set[Sub]): Option[Term] =
-    subs.find(_.v == v).map(_.t)
+    subs.find(_.v.name == v.name).map(_.t)
 
   def renaming(x: Var, y: Var) =
     substituting(Set(Sub(x, y)))
