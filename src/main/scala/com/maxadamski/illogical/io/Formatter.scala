@@ -63,7 +63,7 @@ object SexprFormatter extends Formatter {
   def fmtSexprImpl(n: Node, fix: (Node) => String): String = n match {
     case x: Func => s"(${x.name} ${x.arguments.map(fix).mkString(" ")})"
     case x: Pred => s"(${x.name} ${x.arguments.map(fix).mkString(" ")})"
-    case x: Not => s"(not ${x.form})"
+    case x: Not => s"(not ${fix(x.form)})"
     case x: Con => x.name
     case x: Var => x.name
     case x: Op => s"(${symbol(x.token)} ${fix(x.leftForm)} ${fix(x.rightForm)})"
