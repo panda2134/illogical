@@ -7,7 +7,7 @@ import com.maxadamski.illogical.UnknownType
 import com.maxadamski.illogical.Pred
 import com.maxadamski.illogical.Con
 import com.maxadamski.illogical.SexprFormatter
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.Map
 import com.maxadamski.illogical.EXISTS
 import com.maxadamski.illogical.Skolemizer
 class TypeSpec extends UnitSpec {
@@ -23,7 +23,7 @@ class TypeSpec extends UnitSpec {
             Some(List(ConcreteType("Int"), ConcreteType("Int")))
           )
         )
-        val res = form.recursiveTyping(HashMap.empty)
+        val res = form.recursiveTyping(Map.empty)
         res should not equal None
       }
     }
@@ -43,7 +43,7 @@ class TypeSpec extends UnitSpec {
           )
         )
         val skolem = Skolemizer.skolemized(form)
-        skolem.recursiveTyping(HashMap.empty)
+        skolem.recursiveTyping(Map.empty)
         val s = SexprFormatter.fmtSexprWithType(skolem)
         s should equal ("(! (forall ((x Int)) (! (= (! x :typed Int) (! (s1 (! x :typed Int)) :typed Int)) :typed Bool)) :typed Bool)")
       }

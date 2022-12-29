@@ -1,6 +1,6 @@
 package com.maxadamski.illogical
 
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.Map
 
 trait Named {
   val name: String
@@ -19,7 +19,7 @@ case class Func(name: String, arguments: List[Term],
 
     require(signature == None || signature.get._1.size == arguments.size)
 
-    override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = signature match {
+    override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = signature match {
       case None => None
       case Some((argTypes, retType)) => {
         val unmatchFound = (arguments zip argTypes).map({ case (t, ty) =>
@@ -37,13 +37,13 @@ case class Func(name: String, arguments: List[Term],
 }
 
 case class Var(name: String, typing: NodeType = AnyType) extends Term {
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = typing match {
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = typing match {
     case UnknownType => context.get(name)
     case _ => Some(typing)
   }
 }
 case class Con(name: String, typing: NodeType = AnyType) extends Term {
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = typing match {
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = typing match {
     case UnknownType => context.get(name)
     case _ => Some(typing)
   }

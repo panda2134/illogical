@@ -1,12 +1,12 @@
 package com.maxadamski.illogical
 
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.Map
 
 case class Pred(name: String, arguments: List[Term], signature: Option[(List[NodeType])] = None) extends Form with WithArgs with Named {
 
   require(signature == None || signature.get.size == arguments.size)
 
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = signature match {
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = signature match {
     case None => None
     case Some(argTypes) => {
       val unmatchFound = (arguments zip argTypes).map({ case (t, ty) =>
@@ -24,7 +24,7 @@ case class Pred(name: String, arguments: List[Term], signature: Option[(List[Nod
 }
 
 case class Not(form: Form) extends Form {
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = form.recursiveTyping(context) match {
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = form.recursiveTyping(context) match {
     case Some(ty) if ty compatibleWith ConcreteType("Bool") => Some(ConcreteType("Bool"))
     case _ => None
   }
@@ -32,7 +32,7 @@ case class Not(form: Form) extends Form {
 
 case class Qu(token: QuToken, variable: Var, form: Form) extends Form {
 
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = {
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = {
     if (variable.typing == UnknownType) {
       return None
     } else {
@@ -58,7 +58,7 @@ case class Op(leftForm: Form, token: OpToken, rightForm: Form) extends Form {
     case _ => false
   }
 
-  override def typeCheck(context: HashMap[String, NodeType]): Option[NodeType] = Some(ConcreteType("Bool"))
+  override def typeCheck(context: Map[String, NodeType]): Option[NodeType] = Some(ConcreteType("Bool"))
 }
 
 sealed abstract class Form extends Node with LogicLaws {
